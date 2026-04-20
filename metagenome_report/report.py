@@ -290,8 +290,8 @@ def build_context(csv_path: Path) -> Dict[str, Any]:
     }
 
 
-def write_table(csv_path: Path, outdir: Path) -> Path:
-    """Write a markdown summary table of bins. Returns the output path."""
+def write_table(csv_path: Path, outdir: Path) -> tuple[Path, Path]:
+    """Write markdown and CSV summary tables of bins. Returns (md_path, csv_path)."""
     outdir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(csv_path)
     cols = _resolve_columns(df)
@@ -314,6 +314,11 @@ def write_table(csv_path: Path, outdir: Path) -> Path:
     seen: set = set()
     keep = [c for c in keep if not (c in seen or seen.add(c))]  # type: ignore[func-returns-value]
 
-    out_path = outdir / "metagenome_bins_table.md"
-    out_path.write_text(df[keep].to_markdown(index=False), encoding="utf-8")
-    return out_path
+    summary = df[keep]
+    md_path = outdir / "metagenome_bins_table.md"
+    md_path.write_text(summary.to_markdown(index=False), encoding="utf-8")
+
+    csv_out = outdir / "metagenome_bins_table.csv"
+    summary.to_csv(csv_out, index=False)
+
+    return md_path, csv_out

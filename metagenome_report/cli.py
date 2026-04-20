@@ -115,9 +115,10 @@ def run(
         except Exception as exc:
             print(f"[ERROR] Figure generation failed: {exc}", file=sys.stderr)
 
-    # 3. Write markdown table
-    table_path = write_table(csv_path, outdir)
-    print(f"  Table saved:  {table_path}")
+    # 3. Write markdown + CSV tables
+    md_path, csv_path_out = write_table(csv_path, outdir)
+    print(f"  Table (md):   {md_path}")
+    print(f"  Table (csv):  {csv_path_out}")
 
     # 4. Write context JSON
     ctx = build_context(csv_path)
