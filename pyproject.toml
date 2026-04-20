@@ -6,6 +6,9 @@ build-backend = "setuptools.backends.legacy:build"
 name = "metagenome-report"
 version = "0.1.0"
 requires-python = ">=3.10"
+authors = [
+    {name = "Karen van Niekerk", email = "kh18@sanger.ac.uk"},
+]
 dependencies = [
     "pandas",
     "numpy",
