@@ -1,9 +1,8 @@
 # metagenome-report
 
 Generate a metagenome bin summary table and annotated tree figure from
-`bin_data.csv` files produced by the Tree of Life assembly/binning/QC
-pipeline.  Outputs land in `~/gn_assets/metagenome_figs/<tolid>/` for
-direct use in genome notes.
+`bin_data.csv` files produced by the Tree of Life metagenome assembly and binning
+pipeline.  Outputs are used in genome notes.
 
 
 ## Requirements
@@ -29,7 +28,7 @@ pip install -e ".[tree]"
 
 ## Input
 
-Each sample is expected to have a `bin_data.csv` derived from th metagenome assembly pipeline under:
+Each sample is expected to have a `bin_data.csv` derived from the metagenome assembly pipeline under:
 
 ```
 ~/gn_assets/metagenomes/<tolid>/bin_data.csv
@@ -186,15 +185,25 @@ these columns populated.
 
 If a bin has no classification string, the `taxon_id` column is used to
 query a local copy of the NCBI taxonomy database via `ete3.NCBITaxa`.
-This requires the SQLite database at `~/ncbi_taxadb.sqlite` (635 MB,
-built from the NCBI taxdump with `NCBITaxa().update_taxonomy_database()`).
+The database lives at `~/gn_assets/ncbi_taxadb.sqlite` (671 MB) and is
+used automatically — no `--ncbi-db` flag needed:
 
 ```bash
-metagenome-report --tolid odAioCras1 --build-tree --use-taxid --ncbi-db ~/ncbi_taxadb.sqlite
+metagenome-report --tolid odAioCras1 --build-tree --use-taxid
 ```
 
 The database maps taxon IDs to their full NCBI lineage (superkingdom →
 phylum → class → order → family → genus → species).
+
+To update the database when NCBI taxonomy changes:
+
+```python
+from ete3 import NCBITaxa
+NCBITaxa(dbfile="~/gn_assets/ncbi_taxadb.sqlite").update_taxonomy_database()
+```
+
+Updating once or twice a year is sufficient unless you are working with
+recently described taxa.
 
 ### Two-step workflow
 

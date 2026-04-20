@@ -28,6 +28,7 @@ from typing import Optional
 GN_ASSETS = Path.home() / "gn_assets"
 METAGENOMES_DIR = GN_ASSETS / "metagenomes"
 FIGS_DIR = GN_ASSETS / "metagenome_figs"
+DEFAULT_NCBI_DB = GN_ASSETS / "ncbi_taxadb.sqlite"
 
 
 def _find_csv(tolid: str) -> Path:
@@ -154,7 +155,8 @@ def parse_args(argv=None) -> argparse.Namespace:
                    help="Explicit Newick file to use for branch structure (single sample only)")
     p.add_argument("--use-taxid", action="store_true",
                    help="Allow NCBI taxon_id lookups via ete3 (used with --build-tree)")
-    p.add_argument("--ncbi-db", help="Path to ete3 NCBI taxonomy SQLite database")
+    p.add_argument("--ncbi-db", default=str(DEFAULT_NCBI_DB),
+                   help=f"Path to ete3 NCBI taxonomy SQLite database (default: {DEFAULT_NCBI_DB})")
     p.add_argument("--dpi", type=int, default=300, help="Figure DPI (default: 300)")
     p.add_argument("--filename", default="metagenome_tree.png",
                    help="Figure filename (default: metagenome_tree.png)")
