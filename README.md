@@ -94,7 +94,7 @@ python -m metagenome_report.cli --tolid glLicPygm2
 
 Used when the sample has 50 or fewer bins.
 
-![Rectangular tree example](docs/example_rectangular.png)
+![Rectangular tree example](examples/example_rectangular.png)
 
 *Example: Lichina pygmaea (glLicPygm2), 9 bins.*
 
@@ -113,7 +113,7 @@ A filled circle on the branch endpoint marks MAGs: **grey** for a standard MAG, 
 
 Used when the sample has more than 50 bins.
 
-![Circular tree example](docs/example_circular.png)
+![Circular tree example](examples/example_circular.png)
 
 *Example: Aiolochroia crassa (odAioCras1), 123 bins.*
 
@@ -150,21 +150,60 @@ The figure uses Open Sans if available (`GENOMENOTES_FONT` env var can
 point to an explicit `.ttf` path).
 
 
-## Two-step workflow (taxonomy-ordered tree)
+## Taxonomy-ordered tree
 
-For a tree whose topology reflects GTDB classification, run
-`--build-tree` once to produce the Newick file, then reuse it:
+Without `--build-tree`, bins are arranged in the figure sorted by
+phylum/class/order/family but with no tree topology drawn.  Adding
+`--build-tree` constructs a rank-aware Newick tree from the taxonomy
+strings in the CSV, which the figure then uses for branch layout.
+
+### How taxonomy is resolved
+
+The tree builder works through two sources in order of preference:
+
+**1. Classification strings (default — no NCBI database required)**
+
+The `ncbi_classification` column (preferred) or `classification` column
+are parsed directly.  Both contain semicolon-delimited GTDB-style rank
+strings already present in the CSV:
+
+```
+ncbi_classification: d__Bacteria;p__Cyanobacteriota;c__Cyanophyceae;o__Pleurocapsales;f__Hyellaceae;g__Pleurocapsa
+classification:      d__Bacteria;p__Cyanobacteria;c__Cyanobacteriia;o__Cyanobacteriales;f__Xenococcaceae;g__Pleurocapsa
+```
+
+`ncbi_classification` uses NCBI taxonomy names; `classification` uses
+GTDB names (which can differ, e.g. `p__Cyanobacteria` vs
+`p__Cyanobacteriota`).  This path works entirely offline and is what
+runs in practice — all bins in the current data have at least one of
+these columns populated.
+
+**2. NCBI taxon ID fallback (`--use-taxid`)**
+
+If a bin has no classification string, the `taxon_id` column is used to
+query a local copy of the NCBI taxonomy database via `ete3.NCBITaxa`.
+This requires the SQLite database at `~/ncbi_taxadb.sqlite` (635 MB,
+built from the NCBI taxdump with `NCBITaxa().update_taxonomy_database()`).
+
+```bash
+metagenome-report --tolid odAioCras1 --build-tree --use-taxid --ncbi-db ~/ncbi_taxadb.sqlite
+```
+
+The database maps taxon IDs to their full NCBI lineage (superkingdom →
+phylum → class → order → family → genus → species).
+
+### Two-step workflow
+
+Run `--build-tree` once to write `tree_assets/`; subsequent runs pick it
+up automatically:
 
 ```bash
 # Step 1 — build tree (only needed once per sample)
-metagenome-report --tolid odAioCras1 --build-tree --use-taxid --ncbi-db ~/ncbi_taxadb.sqlite
+metagenome-report --tolid odAioCras1 --build-tree
 
-# Step 2 — regenerate figure at higher DPI without rebuilding
+# Step 2 — regenerate figure (e.g. at higher DPI) without rebuilding
 metagenome-report --tolid odAioCras1 --dpi 600
 ```
-
-The second run picks up `tree_assets/taxonomy_tree.json` automatically
-if it exists.
 
 
 ## Batch workflow

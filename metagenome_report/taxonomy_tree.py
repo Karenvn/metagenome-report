@@ -143,6 +143,9 @@ class TaxonomyTreeBuilder:
         mapping: Dict[str, str] = {}
         for tid in lineage:
             rank = ranks.get(tid)
+            # NCBI uses "superkingdom" where we use "domain"
+            if rank == "superkingdom":
+                rank = "domain"
             if rank in self.rank_order:
                 mapping[rank] = names.get(tid, str(tid))
         return mapping
