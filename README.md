@@ -7,15 +7,16 @@ pipeline.  Outputs are used in genome notes.
 
 ## Requirements
 
-```
-pandas  numpy  matplotlib  tabulate  num2words
-```
+- `pandas`
+- `numpy`
+- `matplotlib`
+- `tabulate`
+- `num2words`
 
-Optional (for taxonomy-based tree layout):
+For taxonomy-based tree layout:
 
-```
-ete3
-```
+- `ete3`
+
 
 Install the package and its core dependencies:
 
