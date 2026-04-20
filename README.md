@@ -88,18 +88,63 @@ python -m metagenome_report.cli --tolid glLicPygm2
 ```
 
 
-## Plot appearance
+## Reading the figures
 
-**Rectangular layout** (≤50 bins): tree on the left, with coloured
-phylum bars; completeness (blue gradient) and coverage (red gradient)
-squares; genome size bars on the right.
+### Rectangular layout (≤50 bins)
 
-**Circular layout** (>50 bins): bins arranged around a polar axis,
-with an outer phylum colour ring, completeness/coverage scatter tracks,
-and genome size bars.  Tip labels are shown only for ≤30 bins.
+Used when the sample has 50 or fewer bins.
 
-MAGs are marked with a filled circle: grey for standard MAGs, black for
-fully circular MAGs (all contigs circular).
+![Rectangular tree example](docs/example_rectangular.png)
+
+*Example: Lichina pygmaea (glLicPygm2), 9 bins.*
+
+The figure has four panels left to right:
+
+- **Tree / phylum panel** — bins are listed as horizontal lines. Coloured vertical bars on the far left group bins by phylum, with the phylum name written beside each bar. If a taxonomy-ordered Newick tree is available (`--build-tree`), the branching topology is drawn; otherwise bins are sorted by phylum/class/order/family.
+- **Comp** — a coloured square per bin showing CheckM completeness on a white→blue gradient (dark blue = 100%).
+- **Cov** — a coloured square per bin showing mean read coverage on a white→red gradient (log₁₀ scale).
+- **Genome size** — horizontal bar showing assembly size in Mbp.
+
+A filled circle on the branch endpoint marks MAGs: **grey** for a standard MAG, **black** for a fully circular MAG (see [MAG classification](#mag-classification) below).
+
+---
+
+### Circular layout (>50 bins)
+
+Used when the sample has more than 50 bins.
+
+![Circular tree example](docs/example_circular.png)
+
+*Example: Aiolochroia crassa (odAioCras1), 123 bins.*
+
+Bins are arranged around a polar axis (a small gap is left at the top). Working outward from the centre:
+
+- **Tree branches** — grey lines showing the taxonomy-derived topology (if available), or straight radial lines otherwise.
+- **MAG dot** — a filled circle at the branch tip: grey = MAG, black = fully circular MAG.
+- **Comp square** — blue-gradient square, completeness.
+- **Cov square** — red-gradient square, log₁₀ mean coverage.
+- **Genome size bars** — radial bars; dashed rings with Mbp labels provide a scale.
+- **Phylum colour ring** — outermost arc coloured by phylum (legend at the bottom).
+
+Tip labels (species/genus names) are shown only when there are ≤30 bins.
+
+---
+
+### MAG classification
+
+A bin is classified as a **MAG** if it passes all of the following thresholds (applied in order):
+
+| Criterion | Threshold |
+|---|---|
+| Contamination | ≤ 5% |
+| rRNA operon | 5S, 16S, and 23S all present (`Y`) — when columns are present |
+| Unique tRNAs | ≥ 18 — when column is present |
+| Completeness (high) | ≥ 90% |
+| Completeness (medium) + fully circular | ≥ 50% **and** every contig in the bin is circular |
+
+The **fully circular** condition requires that the number of circular contigs equals the total number of contigs (e.g. a single circular chromosome, or multiple circular contigs with no linear ones).
+
+If a `bin_type` column is present in the CSV (populated by the pipeline), its value overrides the rule-based classification: any value containing `mag` (case-insensitive) is treated as a MAG.
 
 The figure uses Open Sans if available (`GENOMENOTES_FONT` env var can
 point to an explicit `.ttf` path).
