@@ -29,7 +29,7 @@ pip install -e ".[tree]"
 
 ## Input
 
-Each sample is expected to have a `bin_data.csv` under:
+Each sample is expected to have a `bin_data.csv` derived from th metagenome assembly pipeline under:
 
 ```
 ~/gn_assets/metagenomes/<tolid>/bin_data.csv
@@ -144,7 +144,11 @@ A bin is classified as a **MAG** if it passes all of the following thresholds (a
 
 The **fully circular** condition requires that the number of circular contigs equals the total number of contigs (e.g. a single circular chromosome, or multiple circular contigs with no linear ones).
 
+MAGs need to be **unique** for a taxon - taxonomid duplicates are not considered to be MAGs.
+
 If a `bin_type` column is present in the CSV (populated by the pipeline), its value overrides the rule-based classification: any value containing `mag` (case-insensitive) is treated as a MAG.
+
+
 
 The figure uses Open Sans if available (`GENOMENOTES_FONT` env var can
 point to an explicit `.ttf` path).

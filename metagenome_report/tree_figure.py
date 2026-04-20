@@ -962,7 +962,7 @@ class MetagenomeTreeFigure:
 
         if include_size_track:
             legend_elements.append(mpatches.Patch(facecolor=self.colors['size_color'],
-                                                 label='Genome size (relative)'))
+                                                 label='Genome size (Mbp)'))
         
         plt.legend(handles=legend_elements, loc='upper left', frameon=True, fancybox=True)
 
