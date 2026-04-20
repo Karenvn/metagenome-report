@@ -124,11 +124,29 @@ if it exists.
 
 ## Batch workflow
 
+Pass multiple tolids directly:
+
 ```bash
-for tolid in $(ls ~/gn_assets/metagenomes/); do
-    metagenome-report --tolid "$tolid"
-done
+metagenome-report --tolids glLicPygm2 glLicPygm3 odAioCras1
 ```
+
+Or supply a text file with one tolid per line (lines starting with `#` are ignored):
+
+```bash
+metagenome-report --tolids-file my_tolids.txt
+```
+
+Example `my_tolids.txt`:
+```
+# sponges
+odAioCras1
+odCarFoli1
+# lichens
+glLicPygm2
+glLicPygm3
+```
+
+All other flags (`--build-tree`, `--dpi`, `--skip-figure`, etc.) apply to every sample in the batch. Each sample writes to its own `~/gn_assets/metagenome_figs/<tolid>/` directory. Samples that fail are reported at the end and do not stop the rest of the batch.
 
 
 ## Files

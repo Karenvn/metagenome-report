@@ -136,17 +136,22 @@ def parse_args(argv=None) -> argparse.Namespace:
         description="Generate metagenome bin table and tree figure from gn_assets data."
     )
     src = p.add_mutually_exclusive_group(required=True)
-    src.add_argument("--tolid", help="ToLID (auto-finds CSV in ~/gn_assets/metagenomes/)")
-    src.add_argument("--csv", type=Path, help="Explicit path to bin_data.csv")
+    src.add_argument("--tolid", help="Single ToLID")
+    src.add_argument("--tolids", nargs="+", metavar="TOLID",
+                     help="One or more ToLIDs (space-separated)")
+    src.add_argument("--tolids-file", type=Path, metavar="FILE",
+                     help="Text file with one ToLID per line (# lines are ignored)")
+    src.add_argument("--csv", type=Path, help="Explicit path to bin_data.csv (single sample)")
 
     p.add_argument("--outdir", type=Path,
-                   help="Output directory (default: ~/gn_assets/metagenome_figs/<tolid>)")
+                   help="Output directory (default: ~/gn_assets/metagenome_figs/<tolid>). "
+                        "Ignored for batch runs.")
     p.add_argument("--build-tree", action="store_true",
                    help="Build taxonomy tree with ete3 before plotting (writes tree_assets/)")
     p.add_argument("--order-json", type=Path,
-                   help="taxonomy_tree.json from a prior --build-tree run")
+                   help="taxonomy_tree.json from a prior --build-tree run (single sample only)")
     p.add_argument("--tree-newick", type=Path,
-                   help="Explicit Newick file to use for branch structure")
+                   help="Explicit Newick file to use for branch structure (single sample only)")
     p.add_argument("--use-taxid", action="store_true",
                    help="Allow NCBI taxon_id lookups via ete3 (used with --build-tree)")
     p.add_argument("--ncbi-db", help="Path to ete3 NCBI taxonomy SQLite database")
@@ -158,9 +163,55 @@ def parse_args(argv=None) -> argparse.Namespace:
     return p.parse_args(argv)
 
 
+def _resolve_tolids(args: argparse.Namespace) -> list[str]:
+    """Return the list of tolids to process from whichever source flag was used."""
+    if args.tolids:
+        return args.tolids
+    if args.tolids_file:
+        p = Path(args.tolids_file).expanduser()
+        lines = p.read_text().splitlines()
+        return [l.strip() for l in lines if l.strip() and not l.startswith("#")]
+    return []
+
+
 def main(argv=None) -> int:
     args = parse_args(argv)
 
+    # ── batch mode ──────────────────────────────────────────────────────────
+    tolids = _resolve_tolids(args)
+    if tolids:
+        failed = []
+        for i, tolid in enumerate(tolids, 1):
+            print(f"\n[{i}/{len(tolids)}] {tolid}")
+            try:
+                csv_path = _find_csv(tolid)
+            except FileNotFoundError as exc:
+                print(f"  [SKIP] {exc}", file=sys.stderr)
+                failed.append(tolid)
+                continue
+            outdir = (_default_outdir(tolid, csv_path)).expanduser().resolve()
+            try:
+                run(
+                    csv_path=csv_path,
+                    outdir=outdir,
+                    tolid=tolid,
+                    build_tree=args.build_tree,
+                    use_taxid=args.use_taxid,
+                    ncbi_db=args.ncbi_db,
+                    dpi=args.dpi,
+                    figure_filename=args.filename,
+                    skip_figure=args.skip_figure,
+                )
+            except Exception as exc:
+                print(f"  [ERROR] {exc}", file=sys.stderr)
+                failed.append(tolid)
+
+        print(f"\nDone: {len(tolids) - len(failed)}/{len(tolids)} succeeded.")
+        if failed:
+            print("Failed:", ", ".join(failed), file=sys.stderr)
+        return 1 if failed else 0
+
+    # ── single sample mode ───────────────────────────────────────────────────
     tolid: Optional[str] = args.tolid
     if tolid:
         csv_path = _find_csv(tolid)
