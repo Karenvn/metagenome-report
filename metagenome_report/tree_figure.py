@@ -563,7 +563,7 @@ class MetagenomeTreeFigure:
         phylum_label_radius = phylum_ring_inner + phylum_ring_width + 0.03
         label_radius = size_base_radius + size_track_height + 0.02
         plot_max_radius = phylum_label_radius + 0.05
-        show_tip_labels = n_bins <= 40
+        show_tip_labels = n_bins <= 50
 
         tree_layout = self._build_tree_layout(inner_radius, tree_outer_radius)
         self.tree_layout = tree_layout

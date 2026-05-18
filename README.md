@@ -126,7 +126,7 @@ Bins are arranged around a polar axis (a small gap is left at the top). Working 
 - **Genome size bars** — radial bars; dashed rings with Mbp labels provide a scale.
 - **Phylum colour ring** — outermost arc coloured by phylum (legend at the bottom).
 
-Tip labels (species/genus names) are shown only when there are ≤40 bins.
+Tip labels (species/genus names) are shown only when there are ≤50 bins.
 
 ---
 
