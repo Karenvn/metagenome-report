@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate annotated tree figure for metagenome bins.
-Automatically selects circular layout for >50 bins.
+Automatically selects circular layout for >30 bins.
 Designed to be called from metagenome_context.py
 
 python scripts/metagenome_tree_figure.py \
@@ -519,7 +519,7 @@ class MetagenomeTreeFigure:
         """Create the appropriate figure based on bin count."""
         n_bins = len(self.df)
         # Here is the threshold for circular vs rectangular
-        if n_bins > 50:
+        if n_bins > 30:
             return self._create_circular_tree(output_path, dpi)
         else:
             print(f"[MetagenomeTreeFigure] rectangular layout selected for {n_bins} bins")
@@ -563,7 +563,7 @@ class MetagenomeTreeFigure:
         phylum_label_radius = phylum_ring_inner + phylum_ring_width + 0.03
         label_radius = size_base_radius + size_track_height + 0.02
         plot_max_radius = phylum_label_radius + 0.05
-        show_tip_labels = n_bins <= 30
+        show_tip_labels = n_bins <= 40
 
         tree_layout = self._build_tree_layout(inner_radius, tree_outer_radius)
         self.tree_layout = tree_layout

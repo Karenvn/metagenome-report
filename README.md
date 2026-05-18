@@ -48,7 +48,7 @@ All outputs are written to `~/gn_assets/metagenome_figs/<tolid>/`
 
 | File | Description |
 |---|---|
-| `metagenome_tree.png` | Annotated bin tree figure (rectangular ≤50 bins, circular >50 bins) |
+| `metagenome_tree.png` | Annotated bin tree figure (rectangular ≤30 bins, circular >30 bins) |
 | `metagenome_bins_table.md` | Markdown summary table of bins |
 | `metagenome_bins_table.csv` | Same table as CSV |
 | `metagenome_context.json` | Context dict for genome note Jinja2 templates |
@@ -90,9 +90,9 @@ python -m metagenome_report.cli --tolid glLicPygm2
 
 ## Reading the figures
 
-### Rectangular layout (≤50 bins)
+### Rectangular layout (≤30 bins)
 
-Used when the sample has 50 or fewer bins.
+Used when the sample has 30 or fewer bins.
 
 ![Rectangular tree example](examples/example_rectangular.png)
 
@@ -109,9 +109,9 @@ A filled circle on the branch endpoint marks MAGs: **grey** for a standard MAG, 
 
 ---
 
-### Circular layout (>50 bins)
+### Circular layout (>30 bins)
 
-Used when the sample has more than 50 bins.
+Used when the sample has more than 30 bins.
 
 ![Circular tree example](examples/example_circular.png)
 
@@ -126,7 +126,7 @@ Bins are arranged around a polar axis (a small gap is left at the top). Working 
 - **Genome size bars** — radial bars; dashed rings with Mbp labels provide a scale.
 - **Phylum colour ring** — outermost arc coloured by phylum (legend at the bottom).
 
-Tip labels (species/genus names) are shown only when there are ≤30 bins.
+Tip labels (species/genus names) are shown only when there are ≤40 bins.
 
 ---
 
@@ -257,3 +257,12 @@ metagenome_report/
   taxonomy_tree.py  TaxonomyTreeBuilder using ete3
 pyproject.toml
 ```
+
+
+
+## Notes
+
+
+- If Open Sans is available locally it will be used automatically; otherwise
+  matplotlib's default sans-serif font is used.
+- The `MerianBow4` palette used here is credited to [Arnaud Martin](<https://biology.columbian.gwu.edu/arnaud-martin>).
