@@ -729,6 +729,7 @@ class MetagenomeTreeFigure:
         branch_end = 0.24
         label_x = 0.302
         y_spacing = 1.0
+        row_glyph_height = y_spacing * 0.6
 
         tree_layout = None
         if self.tree:
@@ -809,7 +810,7 @@ class MetagenomeTreeFigure:
             cov_entries.append((y_val, cov_norm))
             size_mbp = row.get('size', 0) / 1e6
             ax_size.barh(
-                y_val, size_mbp, height=0.6,
+                y_val, size_mbp, height=row_glyph_height,
                 color=self.colors['size_color'],
                 edgecolor='black', linewidth=0.5, alpha=0.8
             )
@@ -885,8 +886,7 @@ class MetagenomeTreeFigure:
 
         # Draw completeness/coverage squares using axis coordinates so they stay square
         y_range = y_max - y_min if y_max > y_min else 1
-        row_height_frac = y_spacing / y_range
-        square_height = row_height_frac * 0.78
+        square_height = row_glyph_height / y_range
         fig_w, fig_h = fig.get_size_inches()
 
         def _axis_height_width_ratio(axis):
