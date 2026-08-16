@@ -118,6 +118,18 @@ def _as_float(v: Any) -> float:
         return float("nan")
 
 
+def _format_bp(v: Any) -> str:
+    if v is None or pd.isna(v):
+        return ""
+    try:
+        number = float(v)
+    except Exception:
+        return str(v)
+    if number.is_integer():
+        return f"{int(number):,}"
+    return f"{number:,.0f}"
+
+
 def _extract_phylum(tax: Any) -> Optional[str]:
     if tax is None or (isinstance(tax, float) and np.isnan(tax)):
         return None
@@ -302,8 +314,11 @@ def write_table(csv_path: Path, outdir: Path) -> tuple[Path, Path]:
     if tax_col:
         df["phylum"] = df[tax_col].apply(_extract_phylum)
 
+    if cols["size"]:
+        df[cols["size"]] = df[cols["size"]].map(_format_bp)
+
     keep_candidates = [
-        cols["bin_id"], "phylum", tax_col,
+        cols["bin_id"], "phylum", tax_col, cols["size"],
         cols["completeness"], cols["contamination"],
         cols["circular"], cols["trna_unique"],
         cols["rrna_5s"], cols["rrna_16s"], cols["rrna_23s"],

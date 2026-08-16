@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate annotated tree figure for metagenome bins.
-Automatically selects circular layout for >30 bins.
+Automatically selects circular layout for >50 bins.
 Designed to be called from metagenome_context.py
 
 python scripts/metagenome_tree_figure.py \
@@ -46,6 +46,7 @@ except Exception:
     EteTree = None
 
 
+RECTANGULAR_LAYOUT_MAX_BINS = 50
 CIRCULAR_SPAN_FRACTION = 350.0 / 360.0
 
 
@@ -70,6 +71,14 @@ def _interpolate_angles(start, end, num=30):
     elif delta < -np.pi:
         delta += 2 * np.pi
     return start + np.linspace(0, delta, num)
+
+
+def _rectangular_y_limits(y_values, y_spacing=1.0):
+    """Return compact limits with half a row of clearance at each end."""
+    y_padding = y_spacing * 0.5
+    if len(y_values) == 0:
+        return -y_padding, y_padding
+    return min(y_values) - y_padding, max(y_values) + y_padding
 
 
 def resolve_open_sans_font(env_var="GENOMENOTES_FONT"):
@@ -518,8 +527,7 @@ class MetagenomeTreeFigure:
     def create_figure(self, output_path, dpi=300):
         """Create the appropriate figure based on bin count."""
         n_bins = len(self.df)
-        # Here is the threshold for circular vs rectangular
-        if n_bins > 30:
+        if n_bins > RECTANGULAR_LAYOUT_MAX_BINS:
             return self._create_circular_tree(output_path, dpi)
         else:
             print(f"[MetagenomeTreeFigure] rectangular layout selected for {n_bins} bins")
@@ -714,7 +722,7 @@ class MetagenomeTreeFigure:
         return str(output_path)
     
     def _create_rectangular_tree(self, output_path, dpi=300):
-        """Create rectangular tree for ≤30 bins."""
+        """Create rectangular tree for moderate bin counts."""
         n_bins = len(self.df)
         figsize = (12, max(8, n_bins * 0.3))
 
@@ -856,7 +864,8 @@ class MetagenomeTreeFigure:
         for phylum, start_y, end_y in phylum_segments:
             color = phylum_colors.get(phylum, '#cccccc')
             ax_tree.plot([0, 0], [start_y, end_y],
-                         color=color, linewidth=4, alpha=0.8)
+                         color=color, linewidth=4, alpha=0.8,
+                         solid_capstyle='butt')
             label = str(phylum).replace('Candidatus', 'Ca.')
             mid_y = (start_y + end_y) / 2
             ax_tree.text(-0.025, mid_y, label,
@@ -866,8 +875,7 @@ class MetagenomeTreeFigure:
         if tree_layout and not y_values:
             y_values = [0.0]
 
-        y_min = min(y_values) - y_spacing if y_values else -1
-        y_max = max(y_values) + y_spacing if y_values else (y_position if y_position else 1)
+        y_min, y_max = _rectangular_y_limits(y_values, y_spacing)
 
         ax_tree.set_xlim(-0.035, 0.69)
         ax_tree.set_ylim(y_min, y_max)
@@ -1087,7 +1095,7 @@ def main():
     tree_fig = MetagenomeTreeFigure(args.csv, bin_order=bin_order, tree_path=tree_path)
     n_bins = tree_fig.load_and_process()
     
-    if n_bins > 30:
+    if n_bins > RECTANGULAR_LAYOUT_MAX_BINS:
         print(f"Creating circular tree for {n_bins} bins...")
     else:
         print(f"Creating rectangular tree for {n_bins} bins...")

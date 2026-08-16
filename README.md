@@ -48,7 +48,7 @@ All outputs are written to `~/gn_assets/metagenome_figs/<tolid>/`
 
 | File | Description |
 |---|---|
-| `metagenome_tree.png` | Annotated bin tree figure (rectangular ≤30 bins, circular >30 bins) |
+| `metagenome_tree.png` | Annotated bin tree figure (rectangular ≤50 bins, circular >50 bins) |
 | `metagenome_bins_table.md` | Markdown summary table of bins |
 | `metagenome_bins_table.csv` | Same table as CSV |
 | `metagenome_context.json` | Context dict for genome note Jinja2 templates |
@@ -90,9 +90,9 @@ python -m metagenome_report.cli --tolid glLicPygm2
 
 ## Reading the figures
 
-### Rectangular layout (≤30 bins)
+### Rectangular layout (≤50 bins)
 
-Used when the sample has 30 or fewer bins.
+Used when the sample has 50 or fewer bins.
 
 ![Rectangular tree example](examples/example_rectangular.png)
 
@@ -109,9 +109,9 @@ A filled circle on the branch endpoint marks MAGs: **grey** for a standard MAG, 
 
 ---
 
-### Circular layout (>30 bins)
+### Circular layout (>50 bins)
 
-Used when the sample has more than 30 bins.
+Used when the sample has more than 50 bins.
 
 ![Circular tree example](examples/example_circular.png)
 
@@ -262,7 +262,5 @@ pyproject.toml
 
 ## Notes
 
-
-- If Open Sans is available locally it will be used automatically; otherwise
-  matplotlib's default sans-serif font is used.
+- If an Open Sans font file is found via GENOMENOTES_FONT or common local font directories, it is used; otherwise matplotlib's default sans-serif font is used.
 - The `MerianBow4` palette used here is credited to [Arnaud Martin](<https://biology.columbian.gwu.edu/arnaud-martin>).
